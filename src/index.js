@@ -58,6 +58,7 @@ class SymbioteBuilder {
     return {
       actions: actionCreators,
       reducer: this.createReducer(),
+      types: extractTypesForActionCreators({}, actionCreators),
     }
   }
 
@@ -145,4 +146,21 @@ function makeActionCreatorFor(type, handler) {
 
   actionCreator.toString = () => type
   return actionCreator
+}
+
+function extractTypesForActionCreators(types, actionCreators) {
+  Object.keys(actionCreators).forEach((x) => {
+    if (typeof actionCreators[x] === 'object') {
+      if (typeof types[x] === 'undefined') {
+        types[x] = {}
+      }
+
+      extractTypesForActionCreators(types[x], actionCreators[x])
+    }
+    else {
+      types[x] = actionCreators[x].toString()
+    }
+  })
+
+  return types
 }
